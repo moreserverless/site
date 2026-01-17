@@ -1,0 +1,177 @@
+:root {
+    --color-soft-teal-mint: #A2D9CE;
+    --color-muted-lavender-purple: #A29BCE;
+    --color-text-dark: #000000;
+    --color-background-light: #FFFFFF;
+    --color-code-background: #f5f5f5; /* Light gray for code blocks */
+}
+
+/* Basic Resets and Body Styles */
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    color: var(--color-text-dark);
+    background-color: var(--color-background-light);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure images are responsive */
+/*img {*/
+/*    max-width: 100%;*/
+/*    height: auto;*/
+/*    display: block; !* Remove extra space below images *!*/
+/*}*/
+
+/* Header styles */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* This will push the nav to the right */
+    padding: 1rem;
+    background-color: var(--color-background-light); /* Assuming header also white background */
+    border-bottom: 1px solid #eee; /* Subtle separator */
+}
+
+.logo-title {
+    display: flex;
+    align-items: center;
+}
+
+/* Header Icon */
+.header-icon {
+    width: 128px;
+    height: 128px;
+    padding-right: 25px;
+    object-fit: contain; /* Prevent image distortion */
+    flex-shrink: 0;
+}
+
+/* Navigation styles */
+nav {
+    display: flex;
+}
+
+nav a {
+    color: var(--color-text-dark);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+}
+
+nav a:hover, nav a:focus {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+/* Article List Styles */
+.article-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.article-list li {
+    margin-bottom: 0.5rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.95rem;
+}
+
+.article-list li time {
+    margin-right: 0.5rem;
+    color: #555;
+    font-weight: bold;
+}
+
+.article-list li a {
+    color: var(--color-text-dark);
+    text-decoration: none;
+}
+
+.article-list li a:hover {
+    text-decoration: underline;
+}
+
+/* Website Name/Title */
+h1 {
+    font-size: 1.5rem; /* Mobile-first font size */
+    margin: 0;
+    color: var(--color-text-dark);
+    white-space: nowrap; /* Prevent title from wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ellipsis if title is too long */
+}
+
+/* Main Content Area - Mobile-First */
+main {
+    padding: 1rem;
+    max-width: 100%; /* Full width on mobile */
+    box-sizing: border-box; /* Include padding in width calculation */
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.95rem;
+}
+
+/* Code Block Styling */
+pre {
+    background-color: var(--color-code-background);
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: pre; /* Preserve whitespace and prevent wrapping */
+}
+
+code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    background-color: var(--color-code-background);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.85em; /* Slightly smaller font for inline code */
+    white-space: pre-wrap; /* Allow inline code to wrap if necessary */
+    word-break: break-all; /* Break long words */
+}
+
+pre code {
+    /*background-color: transparent; !* Code inside pre should not have its own background *!*/
+    padding: 0;
+    font-size: 1em; /* Reset font size for code blocks */
+    white-space: pre; /* Ensure pre-formatted text behavior */
+}
+
+
+/* Desktop-specific styles */
+@media (min-width: 768px) { /* Adjust breakpoint as needed for tablet/desktop */
+    header {
+        padding: 1.5rem 2rem; /* Larger padding for desktop header */
+    }
+
+    h1 {
+        font-size: 2rem; /* Larger font size for desktop title */
+    }
+
+    main {
+        width: 60%; /* Adjusted from 33.333% to 60% for more content area */
+        margin: 2rem auto; /* Center content horizontally with 1/3 whitespace on each side */
+        padding: 0; /* No padding needed here as margin handles spacing */
+        line-height: 1.8; /* Improve readability on desktop */
+        font-size: 1.1rem; /* Slightly larger text for desktop */
+    }
+}
+
+/* Accessibility: High contrast for links if they are present */
+a {
+    color: #007bff; /* Example link color */
+    text-decoration: none;
+}
+
+a:hover, a:focus {
+    text-decoration: underline;
+}
+
+/* Basic typographic adjustments for readability */
+p {
+    margin-bottom: 1rem;
+}
+
+/* Add a responsive meta tag reminder, as it's an HTML concern */
+/* Remember to include <meta name="viewport" content="width=device-width, initial-scale=1.0"> in your HTML <head> */
