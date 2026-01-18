@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>moreserverless.com - Lab Log 01</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-title">
+            <img src="../img/moreserverless_avatar.jpg" alt="moreserverless.com avatar" class="header-icon">
+            <h1>moreserverless.com</h1>
+        </div>
+        <nav>
+            <a href="../index.html">Index</a>
+        </nav>
+    </header>
+
+<main>
+        <h2>LAB LOG 02: Azure DevOps to GCP Handshake</h2>
+    <p class="datetime">Date posted: 2026-01-10</p>
+        <p><strong>Objective:</strong> Configure a secure, automated service connection between Azure DevOps (ADO) and Google Cloud Platform (GCP) for Terraform orchestration.</p>
+
+        <h3>1. GCP Service Account Configuration</h3>
+        <ul>
+            <li><strong>Service Account Creation:</strong> Defined a dedicated identity within the target GCP project specifically for ADO automation.</li>
+            <li><strong>IAM Role Assignment:</strong> 
+                <ul>
+                    <li><code>Editor</code>: Minimum requirement for resource lifecycle management.</li>
+                    <li><code>Project IAM Admin</code>: Required for Terraform to manage service accounts or granular permissions.</li>
+                </ul>
+            </li>
+            <li><strong>Key Generation:</strong> Exported a JSON key file for external authentication.</li>
+        </ul>
+
+        
+
+        <h3>2. Azure DevOps Service Connection</h3>
+        <ul>
+            <li><strong>Connection Type:</strong> Integrated via <code>Project Settings</code> -> <code>Service Connections</code> -> <code>Google Cloud Platform</code>.</li>
+            <li><strong>Authentication:</strong> Uploaded the GCP JSON Service Account key into the ADO secure credential store.</li>
+            <li><strong>Verification:</strong> Executed connection validation within ADO to confirm active communication with the GCP API.</li>
+        </ul>
+
+        <h3>3. Terraform Provider Configuration</h3>
+        <ul>
+            <li><strong>Authentication Logic:</strong> Configured the <code>google</code> provider to ingest credentials via ADO environment variables rather than local file paths.</li>
+            <li><strong>Code Implementation:</strong>
+<pre>
+provider "google" {
+  project = var.gcp_project_id
+  region  = var.gcp_region
+}
+</pre>
+            </li>
+        </ul>
+
+        <h3>4. Technical Rationale ("The Why")</h3>
+        <ul>
+            <li><strong>Security:</strong> JSON keys are stored in ADO’s encrypted vault; no credentials or sensitive paths are hardcoded in the source repositories.</li>
+            <li><strong>Headless Automation:</strong> Enables the ADO pipeline to act as a fully automated administrator for the GCP project.</li>
+            <li><strong>State Management:</strong> Prepared the architecture for
+            remote state backend integration (GCS) by establishing the initial
+            API handshake.</li>
+            <li><strong>Note:</strong>I know Workload Identity Federation is the
+            preferred way to authenticate between cloud providers, but I wanted
+            to mimic work as closely as possible.  Going forwarded I will set
+            up Workload Identity Federation.</li>
+        </ul>
+
+        <hr>
+        
+        <p><em>This documentation was generated through an iterative AI process, refined by the author for technical accuracy and clarity.</em></p>
+    </main>
+</body>
+</html>

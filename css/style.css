@@ -173,5 +173,9 @@ p {
     margin-bottom: 1rem;
 }
 
+p.datetime {
+  font-size: 0.85rem;
+}
+
 /* Add a responsive meta tag reminder, as it's an HTML concern */
 /* Remember to include <meta name="viewport" content="width=device-width, initial-scale=1.0"> in your HTML <head> */

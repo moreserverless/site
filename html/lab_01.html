@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>moreserverless.com - Lab Log 01</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-title">
+            <img src="../img/moreserverless_avatar.jpg" alt="moreserverless.com avatar" class="header-icon">
+            <h1>moreserverless.com</h1>
+        </div>
+        <nav>
+            <a href="../index.html">Index</a>
+        </nav>
+    </header>
+
+    <main>
+<h2>LAB LOG 01: Identity Isolation and Account Silos</h2>
+    <p class="datetime">Date posted: 2026-01-10</p>
+    <p><strong>Objective:</strong> Establish a multi-cloud environment for ephemeral PoCs with high identity isolation.</p>
+    
+    <h3>1. Account Segmentation</h3>
+    <ul>
+        <li><strong>Administrative Layer:</strong> Primary Google Workspace account (moreserverless.com) used for domain management and high-level DNS.</li>
+        <li><strong>Control Plane (Azure/ADO):</strong> Dedicated Outlook service account created specifically for Azure DevOps project management.</li>
+        <li><strong>Infrastructure Target (GCP):</strong> Dedicated Gmail service account created to anchor the Google Cloud sandbox.</li>
+    </ul>
+
+    
+
+    <h3>2. Implementation Steps</h3>
+    <ul>
+        <li><strong>Identity Linking:</strong> Established recovery links for the new service accounts using a primary phone number and existing email addresses to ensure account recovery and MFA stability.</li>
+        <li><strong>Organization Setup:</strong> Provisioned a fresh GCP Project ID under the dedicated service account to isolate resource quotas.</li>
+        <li><strong>ADO Project Initialization:</strong> Provisioned a new Azure DevOps Organization to isolate repositories and pipelines from other workstreams.</li>
+    </ul>
+
+    <h3>3. Technical Rationale ("The Why")</h3>
+    <ul>
+        <li><strong>Blast Radius Mitigation:</strong> Isolates billing and security anomalies within the experimental GCP sandbox; issues cannot propagate to the primary identity.</li>
+        <li><strong>Clean Room Testing:</strong> Ensures no legacy IAM permissions or global settings interfere with PoCs.</li>
+        <li><strong>Credential Hygiene:</strong> Forces explicit configuration of service connections, mirroring enterprise-grade security requirements.</li>
+        <li><strong>Portability:</strong> Decouples the infrastructure stack from personal data, making the environment modular and auditable.</li>
+    </ul>
+
+    <hr>
+    
+    <p><em>This documentation was generated through an iterative AI process,
+    refined by the author for technical accuracy and clarity.</em></p>
+</main>
+</body>
+</html>
