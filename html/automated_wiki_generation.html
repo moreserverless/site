@@ -39,4 +39,22 @@
     <h3>3. Implementation Steps</h3>
     <ul>
         <li><strong>GCP Handshake:</strong> The Azure pipeline downloads a secure GCP Service Account key and activates it to authorize the <code>gcloud builds submit</code> command.</li>
-        <li><strong>Artifact Generation:</strong> Cloud Build executes a POST request to the <code>/generate</code> endpoint, sending parameters such as the repository URL, branch (
+        <li><strong>Artifact Generation:</strong> Cloud Build executes a POST request to the <code>/generate</code> endpoint, sending parameters such as the repository URL, branch (e.g., <code>develop</code>), and requested document types.</li>
+        <li><strong>Wiki Sync:</strong> The process creates a target directory (defaulting to <code>docgen</code>), copies the AI-generated Markdown files into it, and commits the changes with a unique build number for auditability.</li>
+    </ul>
+
+    <h3>4. Technical Rationale ("The Why")</h3>
+    <ul>
+        <li><strong>Centralized Knowledge:</strong> Moving documentation from code repositories to a Wiki ensures high visibility for stakeholders who may not frequently browse source code.</li>
+        <li><strong>Parameter-Ready Design:</strong> While currently utilizing hardcoded values for the <code>REPO_URL</code> and <code>BRANCH</code>, the architecture is designed for easy conversion into a parameterized pipeline that can document any repository on demand.</li>
+        <li><strong>Decoupled Execution:</strong> By offloading the "heavy lifting" of AI processing and Git syncing to Google Cloud, the Azure agent remains lightweight and only handles high-level orchestration.</li>
+        <li><strong>Automated Audit Trail:</strong> Each Wiki update is tagged with a build number, providing a clear link between the documentation version and the pipeline execution that created it.</li>
+    </ul>
+
+    <hr>
+
+    <p><em>This documentation was generated through an iterative AI process,
+        refined by the author for technical accuracy and clarity.</em></p>
+</main>
+</body>
+</html>
