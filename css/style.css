@@ -41,9 +41,9 @@ header {
 
 /* Header Icon */
 .header-icon {
-    width: 128px;
-    height: 128px;
-    padding-right: 25px;
+    width: 60px; /* Smaller for mobile */
+    height: 60px; /* Smaller for mobile */
+    padding-right: 10px; /* Reduced padding for mobile */
     object-fit: contain; /* Prevent image distortion */
     flex-shrink: 0;
 }
@@ -143,6 +143,12 @@ pre code {
 @media (min-width: 768px) { /* Adjust breakpoint as needed for tablet/desktop */
     header {
         padding: 1.5rem 2rem; /* Larger padding for desktop header */
+    }
+
+    .header-icon { /* Revert to original size for desktop */
+        width: 128px;
+        height: 128px;
+        padding-right: 25px;
     }
 
     h1 {
