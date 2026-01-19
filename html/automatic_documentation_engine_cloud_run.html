@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>moreserverless.com</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header>
+    <div class="logo-title">
+        <img src="../img/moreserverless_avatar.jpg" alt="moreserverless.com avatar" class="header-icon">
+        <h1>moreserverless.com</h1>
+    </div>
+    <nav>
+        <a href="../index.html">Index</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Automated Documentation Engine via Cloud Run</h2>
+    <p class="datetime">Date posted: 2026-01-19</p>
+    <p><strong>Objective:</strong> Deploy a serverless Python microservice that utilizes the Gemini API to automatically generate project documentation (READMEs and Architecture guides) from source code repositories.</p>
+
+    <h3>1. Service Architecture & Logic</h3>
+    <ul>
+        <li><strong>Core Engine (<code>app.py</code>):</strong> A Flask-based service designed to run on Google Cloud Run that orchestrates repository cloning, codebase scanning, and interaction with the Google GenAI SDK.</li>
+        <li><strong>Code Analysis:</strong> The service performs a "safe read" of source files, filtered by extensions such as <code>.py</code>, <code>.js</code>, and <code>.go</code>.</li>
+        <li><strong>Configurable Extraction:</strong> By default, the engine extracts the first 500 lines of key files to build a context window for the AI, though this value can be specified by the user to accommodate larger or smaller code samples.</li>
+        <li><strong>AI Integration:</strong> Utilizes the <code>gemini-2.5-flash</code> model to analyze the provided code samples.</li>
+        <li><strong>Template-Driven Generation:</strong> Documentation is produced using hardcoded prompts within the service logic that define specific sections like "Quick Start" and "Dependencies". These prompts can be updated or refactored to align with specific team standards or evolving documentation needs.</li>
+        <li><strong>Dual-Mode Operation:</strong> Supports a <code>/generate</code> endpoint for processing remote Git repositories and a <code>/generate-inline</code> endpoint for direct code snippet analysis.</li>
+    </ul>
+
+
+
+    <h3>2. CI/CD & Cloud Orchestration</h3>
+    <ul>
+        <li><strong>Cross-Cloud Authentication:</strong> The <code>azure_pipelines.yaml</code> file establishes a secure handshake by downloading a GCP Service Account JSON key from ADO Secure Files and activating it via the <code>gcloud</code> SDK.</li>
+        <li><strong>Image Management:</strong> The pipeline triggers a <code>gcloud builds submit</code> command, offloading the containerization process to Google Cloud Build.</li>
+        <li><strong>Container Strategy:</strong> The <code>cloudbuild.yaml</code> configuration builds a Docker image and tags it with both a semantic version (<code>v0.0.1</code>) and a <code>latest</code> tag before pushing it to the Google Artifact Registry.</li>
+        <li><strong>Deployment Target:</strong> The service is containerized for Google Cloud Run, allowing it to scale to zero when not in use to minimize costs.</li>
+    </ul>
+
+    <h3>3. Implementation Steps</h3>
+    <ul>
+        <li><strong>Identity Setup:</strong> Provisioned a GCP Service Account to allow Azure DevOps (ADO) to manage resources and authenticate during the build process.</li>
+        <li><strong>Secure Credentialing:</strong> Stored the GCP JSON key within the Azure DevOps "Secure Files" library to prevent credential leakage in the repository.</li>
+        <li><strong>Automation Loop:</strong> Configured the pipeline to trigger on every push to the <code>main</code> branch, ensuring the Cloud Run service always reflects the latest logic.</li>
+    </ul>
+
+    <h3>4. Technical Rationale ("The Why")</h3>
+    <ul>
+        <li><strong>Context-Aware Docs:</strong> By feeding actual code samples to Gemini, the generated documentation accurately reflects the service's dependencies, environment variables, and specific Flask routes.</li>
+        <li><strong>Cloud-Native Efficiency:</strong> Using Cloud Run ensures the service is "always ready" but only consumes billing seconds during active documentation tasks.</li>
+        <li><strong>Security-First Pipeline:</strong> The use of <code>DownloadSecureFile@1</code> in ADO ensures that the "handshake" between Azure and GCP never exposes raw private keys in logs.</li>
+        <li><strong>Standardization:</strong> This approach creates a "Golden Path" for internal teams, ensuring consistent documentation quality across various microservices.</li>
+    </ul>
+
+    <hr>
+
+    <p><em>This documentation was generated through an iterative AI process,
+        refined by the author for technical accuracy and clarity.</em></p>
+</main>
+</body>
+</html>

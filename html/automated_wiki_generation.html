@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>moreserverless.com</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header>
+    <div class="logo-title">
+        <img src="../img/moreserverless_avatar.jpg" alt="moreserverless.com avatar" class="header-icon">
+        <h1>moreserverless.com</h1>
+    </div>
+    <nav>
+        <a href="../index.html">Index</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Automated Wiki Documentation Pipeline</h2>
+    <p class="datetime">Date posted: 2026-01-19</p>
+    <p><strong>Objective:</strong> Implement a cross-cloud orchestration pipeline that triggers the documentation service to analyze a repository and automatically publish the generated Markdown to an Azure DevOps Wiki.</p>
+
+    <h3>1. Orchestration Workflow</h3>
+    <ul>
+        <li><strong>Trigger Layer (<code>azure-pipelines.yaml</code>):</strong> An Azure DevOps pipeline acts as the primary orchestrator, managing secure credentials and initiating the hand-off to Google Cloud.</li>
+        <li><strong>Compute Layer (Cloud Build):</strong> Google Cloud Build serves as the execution engine. It handles the API handshake with the Cloud Run documentation service and manages subsequent Git operations.</li>
+        <li><strong>Storage & Publishing:</strong> The pipeline concludes by cloning the Azure DevOps Wiki repository, injecting the newly generated <code>ReadMe.md</code> and <code>Architecture.md</code> files, and pushing changes back to the <code>wikiMaster</code> branch.</li>
+    </ul>
+
+    <h3>2. Integration & Security</h3>
+    <ul>
+        <li><strong>Impersonated Authentication:</strong> Cloud Build generates an identity token by impersonating a specific service account (<code>ado-terraform@docgen-5ydk.iam.gserviceaccount.com</code>) to securely authenticate requests to the Cloud Run endpoint.</li>
+        <li><strong>Secure Token Handling:</strong> An Azure DevOps Personal Access Token (PAT) is passed as a sensitive substitution variable (<code>_AZURE_DEVOPS_PAT</code>) from the Azure pipeline to Cloud Build. This ensures the process can clone both private source repositories and the target Wiki.</li>
+        <li><strong>JSON Processing:</strong> The pipeline utilizes <code>jq</code> within the Cloud Build environment to parse the JSON response from the documentation service and extract raw Markdown content into physical files.</li>
+    </ul>
+
+    <h3>3. Implementation Steps</h3>
+    <ul>
+        <li><strong>GCP Handshake:</strong> The Azure pipeline downloads a secure GCP Service Account key and activates it to authorize the <code>gcloud builds submit</code> command.</li>
+        <li><strong>Artifact Generation:</strong> Cloud Build executes a POST request to the <code>/generate</code> endpoint, sending parameters such as the repository URL, branch (

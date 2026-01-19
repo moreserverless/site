@@ -56,7 +56,7 @@ nav {
 nav a {
     color: var(--color-text-dark);
     text-decoration: none;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.25rem; /* Further reduced horizontal padding for mobile */
     font-weight: bold;
 }
 
@@ -149,6 +149,10 @@ pre code {
         width: 128px;
         height: 128px;
         padding-right: 25px;
+    }
+
+    nav a {
+        padding: 0.5rem 1rem; /* Restore original padding for desktop */
     }
 
     h1 {
