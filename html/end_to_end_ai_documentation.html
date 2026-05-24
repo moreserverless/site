@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>moreserverless.com - Lab Log</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-title">
+            <img src="../img/moreserverless_avatar.jpg" alt="moreserverless.com avatar" class="header-icon">
+            <h1>moreserverless.com</h1>
+        </div>
+        <nav>
+            <a href="../index.html">Index</a>
+        </nav>
+    </header>
+
+<main>
+
+
+<h2>End-to-End AI Documentation System: From Code to Wiki</h2>
+
+<p class="datetime">Date posted: 2026-05-24</p>
+
+<p><strong>Objective:</strong> Document the complete system architecture that combines a serverless AI documentation microservice on Google Cloud Run with a cross-cloud orchestration pipeline to automatically generate and publish Markdown documentation to an Azure DevOps Wiki.</p>
+
+<h3><strong>1. System Overview</strong></h3>
+
+<ul>
+
+<li><strong>Two-Article Context:</strong> This article describes how the Documentation Engine (Cloud Run service) and the Automated Wiki Pipeline (Azure DevOps + Cloud Build) function as a unified system rather than two independent components.</li>
+
+<li><strong>Service Layer (<strong>app.py</strong>):</strong> A Flask-based Cloud Run service clones a target repository, scans source files, and invokes the Gemini API to produce structured Markdown documentation.</li>
+
+<li><strong>Orchestration Layer (<strong>azure-pipelines.yaml</strong>):</strong> An Azure DevOps pipeline authenticates to GCP, submits a Cloud Build job, and coordinates the delivery of AI-generated Markdown into the Azure DevOps Wiki repository.</li>
+
+<li><strong>End-to-End Flow:</strong> A pipeline trigger in Azure DevOps initiates a Cloud Build job, which calls the Cloud Run /generate endpoint, receives the Markdown response, and commits the resulting files to the wikiMaster branch of the Wiki repository.</li>
+
+</ul>
+
+<h3><strong>2. Component Responsibilities</strong></h3>
+
+<ul>
+
+<li><strong>Cloud Run Service:</strong> Owns all AI interaction and document generation. It accepts a repository URL and branch as parameters, performs filtered source code extraction (up to 500 lines per key file), and returns ReadMe.md and Architecture.md as a JSON payload.</li>
+
+<li><strong>Cloud Build:</strong> Acts as the execution engine between Azure DevOps and the Cloud Run service. It authenticates to the Cloud Run endpoint via service account impersonation, issues the POST request to /generate, parses the JSON response using jq, and handles all subsequent Git operations against the Wiki repository.</li>
+
+<li><strong>Azure DevOps Pipeline:</strong> Serves as the top-level orchestrator. It manages secure credentials — including the GCP Service Account key via DownloadSecureFile@1 and the Azure DevOps PAT via <strong>_AZURE_DEVOPS_PAT</strong> — and triggers the Cloud Build job via gcloud builds submit.</li>
+
+<li><strong>Azure DevOps Wiki:</strong> The publishing destination. The pipeline clones the Wiki repository, injects the AI-generated Markdown into a target directory (defaulting to docgen), and pushes the changes back to wikiMaster.</li>
+
+</ul>
+
+<h3><strong>3. Security & Credential Boundaries</strong></h3>
+
+<ul>
+
+<li><strong>GCP Service Account Key:</strong> Stored in the Azure DevOps Secure Files library and downloaded at pipeline runtime via DownloadSecureFile@1. It is never stored in the repository.</li>
+
+<li><strong>Impersonated Authentication to Cloud Run:</strong> Cloud Build generates a short-lived identity token by impersonating the ado-terraform@docgen-5ydk.iam.gserviceaccount.com service account to authenticate the POST request to the Cloud Run endpoint.</li>
+
+<li><strong>Azure DevOps PAT:</strong> Passed as a sensitive substitution variable from the Azure pipeline to Cloud Build, enabling the job to clone both the source repository and the target Wiki repository without embedding credentials in code.</li>
+
+<li><strong>Credential Isolation:</strong> Each credential is scoped to the layer that requires it. The Azure pipeline holds the GCP key; Cloud Build holds the ADO PAT as a substitution; neither layer has broader access than its function requires.</li>
+
+</ul>
+
+<h3><strong>4. Technical Rationale ("The Why")</strong></h3>
+
+<ul>
+
+<li><strong>Separation of Concerns:</strong> The Cloud Run service handles AI generation in isolation, while Cloud Build handles Git operations. This allows either component to be updated, replaced, or reused independently without affecting the other.</li>
+
+<li><strong>Wiki as the Publishing Target:</strong> Committing documentation to an Azure DevOps Wiki rather than directly to the source repository improves visibility for stakeholders who do not regularly interact with code repositories.</li>
+
+<li><strong>Auditability:</strong> Each Wiki commit is tagged with a Cloud Build build number, creating a traceable link between a documentation version and the pipeline execution that produced it.</li>
+
+<li><strong>Scalability:</strong> The Cloud Run service is stateless and scales to zero between invocations, while the pipeline's use of hardcoded REPO_URL and BRANCH values is designed to be straightforward to convert into parameterized inputs, enabling the system to document any repository on demand.</li>
+
+</ul>
+
+<h3><strong>5. Production Readiness Considerations</strong></h3>
+
+<ul>
+
+<li><strong>Workload Identity Federation:</strong> The current use of a long-lived GCP Service Account JSON key stored in Azure DevOps Secure Files is a known security risk. Replacing it with Workload Identity Federation eliminates the need for a downloadable key entirely. Instead, Azure DevOps is configured as a trusted identity provider in GCP, allowing the pipeline to exchange a short-lived Azure DevOps OIDC token for a GCP access token at runtime. No key is ever generated, stored, or rotated.</li>
+
+<li><strong>Vertex AI for Model Invocation:</strong> The service currently calls the Gemini API via the Google GenAI SDK, which routes requests through a public API endpoint. Replacing this with Vertex AI keeps all inference traffic within the GCP project boundary, which is a requirement for organizations with data sovereignty or data residency obligations. Vertex AI also provides access to the same Gemini models with the addition of enterprise controls such as VPC Service Controls, audit logging, and managed quotas.</li>
+
+<li><strong>Parameterized Pipeline Inputs:</strong> The REPO_URL and BRANCH values are currently hardcoded in the pipeline configuration. Converting these to runtime parameters allows the same pipeline to document any repository on demand without modifying the pipeline definition itself.</li>
+
+<li><strong>Azure DevOps PAT Replacement:</strong> The ADO PAT used for Wiki repository operations is a broad credential tied to a user identity. Replacing it with a dedicated service principal or a scoped Azure DevOps service connection reduces the blast radius of a credential compromise and removes the operational burden of PAT expiration and manual rotation.</li>
+
+<li><strong>Structured Logging and Alerting:</strong> The current implementation has no explicit logging or failure alerting beyond what Cloud Build and Azure DevOps provide natively. Adding structured logging within the Cloud Run service and configuring pipeline failure notifications ensures that documentation generation failures are visible and actionable.</li>
+
+</ul>
+
+<p><a href="https://github.com/moreserverless/doc-generator-service/tree/main">View Documentation Engine on GitHub</a></p>
+
+<p><a href="https://github.com/moreserverless/call_doc_generator">View Orchestration Pipeline on GitHub</a></p>
+
+<p><em>This documentation was generated through an iterative AI process, refined by the author for technical accuracy and clarity.</em></p>
+</main>
+</body>
+</html>
