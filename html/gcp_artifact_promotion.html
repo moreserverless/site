@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>moreserverless.com - Lab Log</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-title">
+            <img src="../img/moreserverless_avatar.jpg" alt="moreserverless.com avatar" class="header-icon">
+            <h1>moreserverless.com</h1>
+        </div>
+        <nav>
+            <a href="../index.html">Index</a>
+        </nav>
+    </header>
+
+<main>
+  <h2>GCP Artifact Promotion Pipeline</h2>
+
+      <p class="datetime">Date Posted: 2026-05-16</p>
+
+  <h3>Project Overview</h3>
+  <p>This project establishes an automated container image promotion mechanism within isolated Google Cloud Platform (GCP) environments using Azure Pipelines and GCP Cloud Build, reducing redundant builds and improving artifact consistency.</p>
+
+  <h3>The Challenge</h3>
+  <p>Our organization utilizes GCP to host applications across two distinct, air-gapped environments: Non-Prod (containing Dev and Test projects) and Prod (containing Stage and Prod projects).</p>
+  <p>Because the Non-Prod and Prod environments are completely isolated from one another, a single image cannot be promoted across the entire lifecycle. Previously, however, the deployment workflow required applications to be recompiled and rebuilt from scratch for every single sub-environment (Dev, Test, Stage, and Prod). This process introduced two major issues:</p>
+  <ul>
+    <li><strong>Redundancy:</strong> Significant time and compute resources were wasted running four separate build processes for a single deployment cycle.</li>
+    <li><strong>Risk of Configuration Drift:</strong> Rebuilding artifacts between Dev and Test, or Stage and Prod, meant there was no guarantee that the identical code verified in the lower environment was what landed in the next.</li>
+  </ul>
+  <p>The goal was to optimize this workflow by creating a promotion mechanism within the boundaries of each air-gapped environment.</p>
+
+  <h3>Technical Implementation</h3>
+  <p>To solve this, I developed an Azure DevOps pipeline that interacts with GCP Cloud Build. The application is compiled and built twice per lifecycle: once at the Dev phase and once at the Stage phase.</p>
+  <p>To eliminate the remaining redundant builds, the pipeline targets the verified source image based on its tag, downloads it securely, and writes it directly to the Artifact Registry of the target environment (promoting from Dev to Test, or Stage to Prod). This ensures that the exact same artifact tested in Dev is what runs in Test, and what is tested in Stage is what runs in Prod.</p>
+
+  <h4>Overcoming Infrastructure Constraints</h4>
+  <p>During implementation, I encountered a rigid governance constraint: our team relies on centralized, templated Azure Pipeline YAML files that cannot be modified at the project level. Because of this restriction, I could not introduce standard pipeline runtime parameters to capture user inputs, resulting in template schema errors.</p>
+  <p>To work around this limitation without violating governance policies, I utilized Azure DevOps Variable Groups within the Pipeline Library as the configuration layer.</p>
+  <p>Instead of passing parameters directly into the YAML template, the person deploying the application updates a dedicated Variable Group with the required runtime details:</p>
+  <ul>
+    <li>Application name to promote</li>
+    <li>Source image tag</li>
+    <li>Source artifact repository</li>
+    <li>Target artifact repository</li>
+  </ul>
+  <p>The pipeline dynamically reads these values from the library at runtime, successfully bypassing the template restriction while keeping the deployment process flexible and user-driven.</p>
+
+  <h3>Results and Impact</h3>
+  <ul>
+    <li><strong>Improved Artifact Consistency:</strong> Guaranteed that the exact container image verified in Dev is promoted to Test, and Stage is promoted to Prod, isolating and reducing the risk of environment-specific rebuild bugs.</li>
+    <li><strong>Process Efficiency:</strong> Optimized the deployment lifecycle by cutting the required build and compilation steps in half (from four builds down to two).</li>
+    <li><strong>Policy Compliance:</strong> Delivered a practical automation solution within the strict boundaries of corporate YAML templates and air-gapped network architecture.</li>
+  </ul>
+</main>
+</body>
+</html>
