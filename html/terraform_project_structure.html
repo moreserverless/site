@@ -16,6 +16,126 @@
             <a href="../index.html">Index</a>
         </nav>
     </header>
+<main>
+<h1>Terraform for Personal Projects:<h1><h3>A Solo Engineer's Layered Architecture</h3>
 
+<h2>Project Overview</h2>
+
+<p>A colleague mentioned that building everything as a flat pile of Terraform modules wasn't the best approach. That sent me looking for something better.</p>
+
+<h2>Solo headaches</h2>
+
+<p>Even as a solo developer, hitting these walls is inevitable as complexity grows:</p>
+
+<ul>
+<li><strong>Huge state files:</strong> They make planning slow and risky.</li>
+<li><strong>Dependency loops:</strong> Without a hierarchy, changing one thing breaks another.</li>
+<li><strong>Environment drift:</strong> When Dev doesn't match Prod, deployments fail.</li>
+<li><strong>Self-inflicted errors:</strong> Accidentally deleting a global resource while tweaking a small app component.</li>
+</ul>
+
+<h1><strong>How it works</strong></h1>
+
+<p>I split my infrastructure into logical tiers. This makes it easier to reuse components across my projects and keeps specific concerns isolated so I don't break the foundation.</p>
+
+<table>
+<thead>
+<tr>
+<td><strong>Layer</strong></td>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;</td> <td><strong>Responsibility</strong></td>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;</td> <td><strong>Typical Resources</strong></td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Foundation</strong></td>
+<td></td>
+<td>The basics: billing and org structure.</td>
+<td></td>
+<td>Folders, billing accounts.</td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td></td>
+<td>Where traffic flows.</td>
+<td></td>
+<td>VPCs, Subnets, DNS.</td>
+</tr>
+<tr>
+<td><strong>Service</strong></td>
+<td></td>
+<td>Common tools for everyone.</td>
+<td></td>
+<td>Databases, GKE, IAM.</td>
+</tr>
+<tr>
+<td><strong>Apps</strong></td>
+<td></td>
+<td>Specific project resources.</td>
+<td></td>
+<td>Cloud Run, Pub/Sub.</td>
+</tr>
+</tbody>
+</table>
+
+<pre><code>infrastructure/
+├── modules/
+│ ├── network/ # (Reusable VPC module)
+│ └── database/ # (Reusable Cloud SQL module)
+└── layers/
+    ├── 00-bootstrap/ # Creates the State Bucket
+    ├── 01-networking/ # Uses the bucket, builds VPC
+    └── 02-database/ # Uses the bucket, builds DB in VPC
+</code></pre>
+
+<h2>Keeping state safe</h2>
+
+<p>I use a central bucket to ensure I can pick up where I left off from any machine.</p>
+
+<ul>
+<li><strong>Cloud Storage:</strong> Versioned state files in GCS.</li>
+<li><strong>State Locking:</strong> Prevents corruption if I accidentally run a script while another is finishing.</li>
+<li><strong>Workspaces:</strong> Keeps Production and Staging completely separate.</li>
+</ul>
+
+<h2>Managing the flow</h2>
+
+<p>Data flows one way: down. Apps look at the Network, not the other way around.</p>
+
+<ul>
+<li><strong>Remote Data:</strong> Layers pull info they need from lower-tier outputs.</li>
+<li><strong>Clean Interfaces:</strong> Each layer only shows what's necessary (like VPC IDs).</li>
+<li><strong>Decoupled:</strong> Update the base layers without redeploying your whole app stack.</li>
+</ul>
+
+<h2>The workflow</h2>
+
+<p>I use a disciplined workflow to keep my personal deployments professional and predictable.</p>
+
+<ol>
+<li><strong>Plan first:</strong> I always review the execution plan before letting Terraform touch any live infrastructure.</li>
+<li><strong>Promote slowly:</strong> Sandbox → Staging → Prod. No shortcuts.</li>
+<li><strong>Consistency:</strong> Use the exact same modules across every environment.</li>
+</ol>
+
+<h2>The personal payoff</h2>
+
+<p>This approach simplifies my long-term maintenance:</p>
+
+<ul>
+<li><strong>Stability:</strong> App failures won't take down your network.</li>
+<li><strong>Efficiency:</strong> I can experiment on new apps without worrying about my core network or billing setup.</li>
+<li><strong>Maintainability:</strong> Coming back to a project after months is easy with clear, decoupled layers.</li>
+<li><strong>Growth:</strong> Spin up new regions or projects in minutes.</li>
+</ul>
+
+<h2>What's Next</h2>
+
+<p>This architecture is designed but not yet fully implemented. The layered
+  approach looks clean on paper — the real test is whether the state management
+  and decoupling hold up when I'm actually modifying live infrastructure across
+  multiple projects. I'll document what breaks.</p>
+
+</main>
 </body>
 </html>
